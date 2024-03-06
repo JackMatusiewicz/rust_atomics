@@ -1,3 +1,5 @@
+mod spin_lock;
+
 #[allow(unused)]
 use std:: {
     cell::{Cell, RefCell, UnsafeCell},
