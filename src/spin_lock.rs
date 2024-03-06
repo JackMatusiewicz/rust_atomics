@@ -57,9 +57,7 @@ impl<T> SpinLock<T> {
     }
 }
 
-unsafe impl<T> Send for SpinLock<T> {
-}
-
+// This says that it is safe for references to a SpinLock to be usable across threads.
 unsafe impl<T> Sync for SpinLock<T> {
 }
 
