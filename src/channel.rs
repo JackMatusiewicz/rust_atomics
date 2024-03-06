@@ -1,4 +1,4 @@
-use crate::spin_lock::{SpinLock, SpinLockGuard};
+use crate::spin_lock::{SpinLock};
 use std::collections::VecDeque;
 
 pub struct Channel<T> {
