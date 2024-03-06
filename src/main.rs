@@ -1,7 +1,8 @@
+mod channel;
 mod spin_lock;
 
 #[allow(unused)]
-use std:: {
+use std::{
     cell::{Cell, RefCell, UnsafeCell},
     collections::VecDeque,
     marker::PhantomData,
@@ -9,8 +10,11 @@ use std:: {
     ops::{Deref, DerefMut},
     ptr::NonNull,
     rc::Rc,
-    sync::{*, atomic::{*, Ordering::*}},
-    thread::{self, Thread}
+    sync::{
+        atomic::{Ordering::*, *},
+        *,
+    },
+    thread::{self, Thread},
 };
 
 fn main() {

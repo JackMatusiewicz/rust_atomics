@@ -23,7 +23,7 @@ impl<T> Deref for SpinLockGuard<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        unsafe { & *self.lock.data.get() }
+        unsafe { &*self.lock.data.get() }
     }
 }
 
@@ -38,14 +38,14 @@ pub struct SpinLock<T> {
     is_locked: AtomicBool,
     // We add this so that the interface grants access to the data when the lock is taken,
     // rather than relying on users to correctly use the lock with locked data.
-    data: UnsafeCell<T>
+    data: UnsafeCell<T>,
 }
 
 impl<T> SpinLock<T> {
     pub fn new(v: T) -> Self {
         Self {
             is_locked: AtomicBool::new(false),
-            data: UnsafeCell::new(v)
+            data: UnsafeCell::new(v),
         }
     }
 
@@ -58,13 +58,12 @@ impl<T> SpinLock<T> {
 }
 
 // This says that it is safe for references to a SpinLock to be usable across threads.
-unsafe impl<T> Sync for SpinLock<T> {
-}
+unsafe impl<T> Sync for SpinLock<T> {}
 
 #[cfg(test)]
 mod test {
-    use std::ops::Deref;
     use crate::spin_lock::SpinLock;
+    use std::ops::Deref;
 
     #[test]
     fn simple_test() {
