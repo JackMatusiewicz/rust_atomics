@@ -1,5 +1,5 @@
-mod channel;
 mod spin_lock;
+mod channels;
 
 #[allow(unused)]
 use std::{
@@ -11,8 +11,8 @@ use std::{
     ptr::NonNull,
     rc::Rc,
     sync::{
-        atomic::{Ordering::*, *},
         *,
+        atomic::{*, Ordering::*},
     },
     thread::{self, Thread},
 };
