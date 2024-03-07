@@ -54,6 +54,7 @@ unsafe impl<T> Sync for OneShotChannel<T> where T: Send {}
 
 #[cfg(test)]
 mod test {
+    use std::time::Duration;
     use crate::channels::one_shot::OneShotChannel;
 
     #[test]
@@ -74,5 +75,20 @@ mod test {
 
         let v = channel.dequeue();
         assert_eq!(55, v);
+
+        std::thread::scope(|s| {
+            s.spawn(|| {
+                std::thread::sleep(Duration::from_millis(500));
+                channel.enqueue(60);
+                current_thread.unpark();
+            });
+        });
+
+        while !channel.is_ready() {
+            std::thread::park();
+        }
+
+        let v = channel.dequeue();
+        assert_eq!(60, v);
     }
 }
