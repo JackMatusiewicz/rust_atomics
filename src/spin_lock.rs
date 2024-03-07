@@ -58,7 +58,7 @@ impl<T> SpinLock<T> {
 }
 
 // This says that it is safe for references to a SpinLock to be usable across threads.
-unsafe impl<T> Sync for SpinLock<T> {}
+unsafe impl<T> Sync for SpinLock<T> where T : Send {}
 
 #[cfg(test)]
 mod test {
