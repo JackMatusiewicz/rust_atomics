@@ -43,14 +43,15 @@ mod test {
         std::thread::scope(|scope| {
             scope.spawn(|| {
                 for i in 0..6 {
-                    channel.enqueue(i);
+                    let n = channel.dequeue();
+                    sum += n;
                 }
             });
 
             scope.spawn(|| {
                 for i in 0..6 {
-                    let n = channel.dequeue();
-                    sum += n;
+                    channel.enqueue(i);
+                    std::thread::sleep(std::time::Duration::from_millis(100));
                 }
             });
         });
