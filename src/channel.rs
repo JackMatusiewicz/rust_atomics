@@ -30,8 +30,6 @@ impl<T> Channel<T> {
     }
 }
 
-unsafe impl<T> Sync for Channel<T> {}
-
 #[cfg(test)]
 mod test {
     use crate::channel::Channel;
