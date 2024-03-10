@@ -40,7 +40,7 @@ mod test {
         let mut sum = 0;
         std::thread::scope(|scope| {
             scope.spawn(|| {
-                for i in 0..6 {
+                for _ in 0..6 {
                     let n = channel.dequeue();
                     sum += n;
                 }

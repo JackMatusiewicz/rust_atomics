@@ -1,6 +1,5 @@
 use std::cell::UnsafeCell;
 use std::mem::MaybeUninit;
-use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering::{Acquire, Relaxed, Release};
 
@@ -9,12 +8,12 @@ struct Channel<T> {
     ready: AtomicBool
 }
 
-pub struct Sender<T> {
-    channel: Arc<Channel<T>>
+pub struct Sender<'a, T> {
+    channel: &'a Channel<T>
 }
 
-pub struct Receiver<T> {
-    channel: Arc<Channel<T>>
+pub struct Receiver<'a, T> {
+    channel: &'a Channel<T>
 }
 
 unsafe impl<T> Sync for Channel<T> where T : Send {}
@@ -27,10 +26,9 @@ impl<T> Channel<T> {
         }
     }
 
-    pub fn new() -> (Sender<T>, Receiver<T>) {
-        let channel_arc = Arc::new(Self::new_channel());
-
-        (Sender {channel: channel_arc.clone()}, Receiver {channel: channel_arc.clone()})
+    pub fn new(channel: &mut Channel<T>) -> (Sender<T>, Receiver<T>) {
+        *channel = Self::new_channel();
+        (Sender {channel}, Receiver {channel})
     }
 }
 
@@ -44,14 +42,14 @@ impl<T> Drop for Channel<T> {
     }
 }
 
-impl<T> Sender<T> {
+impl<T> Sender<'_, T> {
     pub fn send(self, message: T) -> () {
         unsafe { (*self.channel.message.get()).write(message); }
         self.channel.ready.store(true, Release);
     }
 }
 
-impl<T> Receiver<T> {
+impl<T> Receiver<'_, T> {
     pub fn is_ready(&self) -> bool {
         self.channel.ready.load(Relaxed)
     }
@@ -68,11 +66,12 @@ impl<T> Receiver<T> {
 
 #[cfg(test)]
 mod test {
-    use crate::channels::one_shot_typed::Channel;
+    use crate::channels::one_shot_borrow::Channel;
 
     #[test]
     fn simple_roundtrip() {
-        let (ts, tr) = Channel::<i32>::new();
+        let mut chan = Channel::new_channel();
+        let (ts, tr) = Channel::<i32>::new(&mut chan);
         let current_thread = std::thread::current();
 
         std::thread::scope(|s| {
@@ -87,6 +86,7 @@ mod test {
         }
 
         let v = tr.receive();
+
         assert_eq!(55, v);
     }
 }
